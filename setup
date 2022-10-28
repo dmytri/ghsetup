@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+#
+# install
+#
+
+BASHERPM="$PWD/basher/bin/basher"
+eval "$($BASHERPM init - bash)"
+
+$BASHERPM install svenfuchs/simple_opts.sh
+$BASHERPM install spack/spack 1> /dev/null
+
+. $BASHER_PACKAGES_PATH/spack/spack/share/spack/setup-env.sh
+
+spack install -yn gh@2.18.1
+spack load gh
+gh auth login -w -p https
+

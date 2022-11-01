@@ -22,13 +22,10 @@ TARGET_REPO=Garden-Delivery/"${repo}"
 SOURCE_PROJECT_ID=14544235
 TARGET_PROJECT_ID=$($GH api \
   -H "Accept: application/vnd.github+json" \
-  /repos/"${TARGET_REPO}"/projects  /
-  | jp .h '"id"' .keyval)
+  /repos/"${TARGET_REPO}"/projects 2>/dev/null  \
+  | jp .h '"id"' .keyval 2>/dev/null )
 
-exit
-
-
-if [ -z $id ]; then
+if [ -z "$TARGET_PROJECT_ID" ]; then
   echo ${TARGET_REPO} must exist and have project columns copied into it
   exit 1
 fi
@@ -39,7 +36,7 @@ mapfile -t targetColumnIds <  <($GH api \
   | jp [] .swap .map .cons \
   | jp .map .do '"id"' .keyval .done)
 
-echo "Target project column ids:"; printf '%s\n' "${targetColumnIds[@]}"
+#echo "Target project column ids:"; printf '%s\n' "${targetColumnIds[@]}"
 
 mapfile -t sourceColumnIds < <($GH api \
   -H "Accept: application/vnd.github.inertia-preview+json" \

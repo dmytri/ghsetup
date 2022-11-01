@@ -22,7 +22,7 @@ TARGET_REPO=Garden-Delivery/"${repo}"
 SOURCE_PROJECT_ID=14544235
 TARGET_PROJECT_ID=$($GH api \
   -H "Accept: application/vnd.github+json" \
-  /repos/"${TARGET_REPO}"/projects \)
+  /repos/"${TARGET_REPO}"/projects ) #\
   #| jp .h '"id"' .keyval)
 
 echo id: $TARGET_PROJECT_ID

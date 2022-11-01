@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+#
+# copy github project (classic)
+#
+
+# shellcheck disable=SC1091
+source setup
+
+GITHUB_TOKEN=$($GH auth token)
+
+opt --repo= -r
+opt_parse $@
+
+if [ -z $repo ]; then
+  echo "--repo is required"
+  exit 1
+fi
+
+TARGET_REPO=Garden-Delivery/"${repo}"
+
+SOURCE_PROJECT_ID=14544235
+TARGET_PROJECT_ID=$($GH api \
+  -H "Accept: application/vnd.github+json" \
+  /repos/"${TARGET_REPO}"/projects  /
+  | jp .h '"id"' .keyval)
+
+if [ -z $id ]; then
+  echo ${TARGET_REPO} must exist and have project columns copied into it
+  exit 1
+fi
+
+mapfile -t targetColumnIds <  <($GH api \
+  -H "Accept: application/vnd.github.inertia-preview+json" \
+  https://api.github.com/projects/${TARGET_PROJECT_ID}/columns \
+  | jp [] .swap .map .cons \
+  | jp .map .do '"id"' .keyval .done)
+
+echo "Target project column ids:"; printf '%s\n' "${targetColumnIds[@]}"
+
+mapfile -t sourceColumnIds < <($GH api \
+  -H "Accept: application/vnd.github.inertia-preview+json" \
+  https://api.github.com/projects/${SOURCE_PROJECT_ID}/columns \
+  | jp [] .swap .map .cons \
+  | jp .map .do '"id"' .keyval .done)
+
+#echo "Source project column ids:"; printf '%s\n' "${sourceColumnIds[@]}"
+  
+if [ "${#sourceColumnIds[@]}" -ne "${#targetColumnIds[@]}" ]; then
+    echo "Different number of columns in between projects"
+    exit 1
+fi
+    
+for sourceColumnIndex in "${!sourceColumnIds[@]}"
+do
+    sourceColumnId=${sourceColumnIds[$sourceColumnIndex]}
+    sourceColumnId=${sourceColumnId//[^a-zA-Z0-9_]/}
+    targetColumnId=${targetColumnIds[$sourceColumnIndex]}
+    targetColumnId=${targetColumnId//[^a-zA-Z0-9_]/}
+    $GH api \
+      -H "Accept: application/vnd.github.inertia-preview+json" \
+      https://api.github.com/projects/columns/"${sourceColumnId}"/cards \
+    | jp .map .do '"note"' .is_str .if .do .keyval .done .else .pop .done \
+    | while read -r note; do
+      data='{"note":'${note}'}'
+      curl \
+        -w 'HTTP Status: %{http_code}' --silent --output /dev/null \
+        -X POST \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Accept: application/vnd.github.inertia-preview+json" \
+        -d "${data}" \
+        https://api.github.com/projects/columns/"${targetColumnId}"/cards
+      echo " for card migration: ${note}"
+    done
+done

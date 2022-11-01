@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# install
+# SETUP
 #
 
 if ! [[ "$PATH" =~ "/usr/bin:" ]]; then
@@ -15,13 +15,20 @@ fi
 BASHERPM="$PWD/basher/bin/basher"
 eval "$($BASHERPM init - bash)"
 
-$BASHERPM install svenfuchs/simple_opts.sh
-$BASHERPM install spack/spack 1> /dev/null
+$BASHERPM install dmytri/simple_opts.sh >/dev/null
+source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
 
-. $BASHER_PACKAGES_PATH/spack/spack/share/spack/setup-env.sh
+declare GH
+hash gh 2>/dev/null && GH=gh || GH="~/gh/bin/gh"
+if ! $GH 2>/dev/null 1>/dev/null; then
+  echo "gh should be in PATH or at ~/gh/bin/gh | https://github.com/cli/cli"
+  exit 1
+  $BASHERPM install spack/spack >/dev/null
 
-spack install -yn gh@2.18.1
-spack load gh
+  source $BASHER_PACKAGES_PATH/spack/spack/share/spack/setup-env.sh
+  spack install -yn gh@2.18.1
+  spack load gh
+fi
 
-gh auth login -w -p https
+$GH auth token >/dev/null || $GH auth login -w -p https
 

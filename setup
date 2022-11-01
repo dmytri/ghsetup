@@ -19,8 +19,7 @@ $BASHERPM install dmytri/simple_opts.sh >/dev/null
 source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
 
 declare GH
-hash gh 2>/dev/null && GH=gh || GH="~/gh/bin/gh"
-echo "try $GH"
+hash gh 2>/dev/null && GH=gh || GH="${HOME}/gh/bin/gh"
 if ! type $GH 2>/dev/null 1>/dev/null; then
   echo "gh should be in PATH or at ~/gh/bin/gh | https://github.com/cli/cli"
   exit 1

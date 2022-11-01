@@ -12,6 +12,7 @@ BASHERPM="$PWD/basher/bin/basher"
 eval "$($BASHERPM init - bash)"
 
 $BASHERPM install dmytri/simple_opts.sh >/dev/null
+$BASHERPM upgrade dmytri/simple_opts.sh >/dev/null
 source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
 
 declare GH

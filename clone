@@ -23,7 +23,7 @@ SOURCE_PROJECT_ID=14544235
 TARGET_PROJECT_ID=$($GH api \
   -H "Accept: application/vnd.github+json" \
   /repos/"${TARGET_REPO}"/projects \
-  | jp .h '"id"' .keyval 2>/dev/null )
+  | jp .h '"id"' .keyval)
 
 if [ -z "$TARGET_PROJECT_ID" ]; then
   echo ${TARGET_REPO} must exist and have project columns copied into it

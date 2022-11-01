@@ -5,7 +5,7 @@
 #
 
 BASHERPM="$PWD/basher/bin/basher"
-eval "$($BASHERPM init - bash)"
+eval "$($BASHERPM init - zsh)"
 
 $BASHERPM install dmytri/simple_opts.sh >/dev/null
 source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh

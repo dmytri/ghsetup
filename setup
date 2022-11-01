@@ -4,8 +4,12 @@
 # SETUP
 #
 
+BASHER_ROOT="$PWD/basher"
+BASHER_PREFIX="$BASHER_ROOT/cellar"
+BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
+
 BASHERPM="$PWD/basher/bin/basher"
-eval "$($BASHERPM init - zsh)"
+eval "$($BASHERPM init - bash)"
 
 $BASHERPM install dmytri/simple_opts.sh >/dev/null
 source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh

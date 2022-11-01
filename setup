@@ -4,14 +4,6 @@
 # SETUP
 #
 
-if ! [[ "$PATH" =~ "/usr/bin:" ]]; then
-  PATH="$PATH:/usb/bin"
-fi
-
-if ! [[ "$PATH" =~ "/usr/local/bin:" ]]; then
-  PATH="$PATH:/usr/local/bin"
-fi
-
 BASHERPM="$PWD/basher/bin/basher"
 eval "$($BASHERPM init - bash)"
 

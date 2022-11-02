@@ -1,21 +1,89 @@
 #!/bin/bash
 
 #
+# SETUP
+#
+
+BASHER_ROOT="$PWD/basher"
+BASHER_PREFIX="$BASHER_ROOT/cellar"
+BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
+
+BASHERPM="$PWD/basher/bin/basher"
+eval "$($BASHERPM init - bash)"
+
+usage () {
+  echo
+  echo "clone [options]"
+  echo
+  echo "Options:"
+  echo "  -r|--repo      set target repo and clone"
+  echo "  -s|--setup     do setup steps only and exit"
+  echo "  -c|--cleanup   clean up dependencies and exit"
+  echo "  -h|--help      show this help and exit"
+}
+error () {
+  >&2 echo "$(tput setaf 1)Error: $*}"
+  exit 1
+}
+
+clean () {
+  local packages
+  mapfile -t packages < <($BASHERPM list)
+
+  echo packages to uninstall: ${#packages[@]}
+  echo ${packages[@]}
+
+  for p in "${packages[@]}"; do
+    $BASHERPM uninstall $p
+  done
+}
+
+$BASHERPM install dmytri/jp >/dev/null
+$BASHERPM install dmytri/simple_opts.sh >/dev/null
+source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
+
+opt --repo= -r
+opt --clean -c
+opt --setup -s
+opt --help -h
+opt_parse $@
+
+if [ -n "$help" ]; then
+  usage
+  exit 0
+fi
+
+if [ -n "$clean" ]; then
+  clean
+  exit 0
+fi
+
+declare GH
+hash gh 2>/dev/null && GH=gh || GH="${HOME}/gh/bin/gh"
+if ! type $GH 2>/dev/null 1>/dev/null; then
+  error "gh should be in PATH or at ~/gh/bin/gh | https://github.com/cli/cli"
+fi
+
+GITHUB_TOKEN=$($GH auth token)
+if [ -z "$GITHUB_TOKEN" ]; then
+  $GH auth login -w -p https
+  GITHUB_TOKEN=$($GH auth token)
+fi
+
+if [ -n "$setup" ]; then
+  exit 0
+fi
+
+if [ -z "$repo" ]; then
+  echo "--repo is required"
+  usage
+  exit 1
+fi
+
+#
 # copy github project (classic)
 #
 
-# shellcheck disable=SC1091
-source setup
-
-GITHUB_TOKEN=$($GH auth token)
-
-opt --repo= -r
-opt_parse $@
-
-if [ -z $repo ]; then
-  echo "--repo is required"
-  exit 1
-fi
 
 TARGET_REPO=Garden-Delivery/"${repo}"
 
@@ -51,6 +119,7 @@ if [ "${#sourceColumnIds[@]}" -ne "${#targetColumnIds[@]}" ]; then
     exit 1
 fi
     
+echo "cloning to $TARGET_REPO ..."
 for sourceColumnIndex in "${!sourceColumnIds[@]}"
 do
     sourceColumnId=${sourceColumnIds[$sourceColumnIndex]}
@@ -69,7 +138,12 @@ do
         -H "Authorization: token ${GITHUB_TOKEN}" \
         -H "Accept: application/vnd.github.inertia-preview+json" \
         -d "${data}" \
-        https://api.github.com/projects/columns/"${targetColumnId}"/cards
-      echo " for card migration: ${note}"
+        https://api.github.com/projects/columns/"${targetColumnId}"/cards \
+        >/dev/null
     done
 done
+echo "done"
+
+#
+# end
+#

@@ -4,12 +4,37 @@
 # SETUP
 #
 
+
 BASHER_ROOT="$PWD/basher"
 BASHER_PREFIX="$BASHER_ROOT/cellar"
 BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
-
 BASHERPM="$PWD/basher/bin/basher"
+
+if ! type $BASHERPM 2>/dev/null 1>/dev/null; then
+  git clone --depth=1 https://github.com/basherpm/basher.git $BASHER_ROOT
+fi
+
 eval "$($BASHERPM init - bash)"
+
+$BASHERPM install dmytri/jp >/dev/null
+$BASHERPM install dmytri/simple_opts.sh >/dev/null
+source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
+
+opt --repo= -r
+opt --clean -c
+opt --setup -s
+opt --help -h
+opt_parse $@
+
+if [ -n "$help" ]; then
+  usage
+  exit 0
+fi
+
+if [ -n "$clean" ]; then
+  clean
+  exit 0
+fi
 
 usage () {
   echo
@@ -37,26 +62,6 @@ clean () {
     $BASHERPM uninstall $p
   done
 }
-
-$BASHERPM install dmytri/jp >/dev/null
-$BASHERPM install dmytri/simple_opts.sh >/dev/null
-source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
-
-opt --repo= -r
-opt --clean -c
-opt --setup -s
-opt --help -h
-opt_parse $@
-
-if [ -n "$help" ]; then
-  usage
-  exit 0
-fi
-
-if [ -n "$clean" ]; then
-  clean
-  exit 0
-fi
 
 declare GH
 hash gh 2>/dev/null && GH=gh || GH="${HOME}/gh/bin/gh"

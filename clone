@@ -8,6 +8,11 @@
 # derived from https://blog.termian.dev/posts/project-cards-copy-github/
 #
 
+BASHER_ROOT="$PWD/basher"
+BASHER_PREFIX="$BASHER_ROOT/cellar"
+BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
+BASHERPM="$PWD/basher/bin/basher"
+
 #
 # FUNCTIONS
 #
@@ -84,11 +89,6 @@ clean () {
 # SETUP
 #
 
-
-BASHER_ROOT="$PWD/basher"
-BASHER_PREFIX="$BASHER_ROOT/cellar"
-BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
-BASHERPM="$PWD/basher/bin/basher"
 
 if ! type $BASHERPM &>/dev/null; then
   git clone --depth=1 https://github.com/basherpm/basher.git $BASHER_ROOT

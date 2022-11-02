@@ -88,10 +88,20 @@ fi
 TARGET_REPO=Garden-Delivery/"${repo}"
 
 SOURCE_PROJECT_ID=14544235
-TARGET_PROJECT_ID=$($GH api \
+
+target_project=$($GH api \
   -H "Accept: application/vnd.github+json" \
-  /repos/"${TARGET_REPO}"/projects \
-  | jp .h '"id"' .keyval)
+  /repos/"${TARGET_REPO}"/projects)
+
+echo $target_project
+
+echo $target_project | jp .map .do .done
+#echo $target_project | jp .h '"id"' .keyval
+
+#echo id: $TARGET_PROJECT_ID
+
+exit
+
 
 if [ -z "$TARGET_PROJECT_ID" ]; then
   echo ${TARGET_REPO} must exist and have project columns copied into it

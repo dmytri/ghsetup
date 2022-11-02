@@ -21,12 +21,12 @@ usage () {
   echo "clone [options]"
   echo
   echo "Options:"
-  echo "  -d|--debug     show debug output"
-  echo "  -q|--quiet     suppress output"
-  echo "  -r|--repo      set target repo and clone"
-  echo "  -s|--setup     do setup steps only and exit"
-  echo "  -c|--cleanup   clean up dependencies and exit"
-  echo "  -h|--help      show this help and exit"
+  echo "  -d | --debug     show debug output"
+  echo "  -q | --quiet     suppress output"
+  echo "  -r | --repo      set target repo and clone"
+  echo "  -s | --setup     do setup steps only and exit"
+  echo "  -c | --cleanup   clean up dependencies and exit"
+  echo "  -h | --help      show this help and exit"
 }
 
 log () {

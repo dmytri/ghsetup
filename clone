@@ -8,11 +8,6 @@
 # derived from https://blog.termian.dev/posts/project-cards-copy-github/
 #
 
-BASHER_ROOT="$PWD/basher"
-BASHER_PREFIX="$BASHER_ROOT/cellar"
-BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
-BASHERPM="$PWD/basher/bin/basher"
-
 #
 # FUNCTIONS
 #
@@ -89,6 +84,10 @@ clean () {
 # SETUP
 #
 
+BASHER_ROOT="$PWD/basher"
+BASHER_PREFIX="$BASHER_ROOT/cellar"
+BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
+BASHERPM="$PWD/basher/bin/basher"
 
 if ! type $BASHERPM &>/dev/null; then
   git clone --depth=1 https://github.com/basherpm/basher.git $BASHER_ROOT
@@ -119,6 +118,20 @@ if [ -n "$clean" ]; then
   exit 0
 fi
 
+if [ -n "$setup" ]; then
+  exit 0
+fi
+
+if [ -z "$repo" ]; then
+  error "--repo is required"
+  usage
+  exit 1
+fi
+
+#
+# GITHUB CLI
+#
+
 declare GH
 hash gh 2>/dev/null && GH=gh || GH="${HOME}/gh/bin/gh"
 if ! type $GH &>/dev/null; then
@@ -131,16 +144,6 @@ if [ -z "$GITHUB_TOKEN" ]; then
   GITHUB_TOKEN=$($GH auth token)
 fi
 debug "Github Token: $GITHUB_TOKEN"
-
-if [ -n "$setup" ]; then
-  exit 0
-fi
-
-if [ -z "$repo" ]; then
-  error "--repo is required"
-  usage
-  exit 1
-fi
 
 #
 # CLONE

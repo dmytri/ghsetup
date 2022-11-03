@@ -95,6 +95,7 @@ BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
 BASHERPM="$BASHER_ROOT/bin/basher"
 
 if ! type $BASHERPM &>/dev/null; then
+  echo install basher
   git clone --depth=1 https://github.com/basherpm/basher.git $BASHER_ROOT
 fi
 

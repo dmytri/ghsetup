@@ -164,6 +164,7 @@ targetRepoProjects=$($GH api \
 
 debug projects api response $targetRepoProjects
 
+# vim: re=0
 mapfile -t targetRepoProjectNames < \
   <(jp .map .do '"name"' .keyval .done <<< $targetRepoProjects)
 
@@ -173,7 +174,7 @@ mapfile -t targetRepoProjectIds < \
 targetRepoProjectCount=${#targetRepoProjectNames[@]}
 debug project count $targetRepoProjectCount
 
-if ((targetRepoProjectCount > 0)); then
+if ((targetRepoProjectCount > 1)); then
   debug project names ${targetRepoProjectNames[*]}
   PS3="Select a project: "
   select project in "${targetRepoProjectNames[@]}"; do

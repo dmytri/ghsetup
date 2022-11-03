@@ -8,7 +8,6 @@
 # derived from https://blog.termian.dev/posts/project-cards-copy-github/
 #
 
-
 #
 # CONFIGURATION
 #
@@ -46,9 +45,9 @@ log () {
   if [ -z "$quiet" ]; then
     if [ -n "$1" ]
     then
-        M="$*"
+      M="$*"
     else
-        read M 
+      read M 
     fi
 
     >&1 echo "$M"
@@ -59,9 +58,9 @@ debug () {
   if [ -n "$debug" ]; then
     if [ -n "$1" ]
     then
-        M="$*"
+      M="$*"
     else
-        read M 
+      read M 
     fi
 
     >&1 echo -e "${DEBUG}Debug:${NOCOLOR} $M"
@@ -71,9 +70,9 @@ debug () {
 error () {
   if [ -n "$1" ]
   then
-      M="$*"
+    M="$*"
   else
-      read M 
+    read M 
   fi
 
   >&2 echo -e "${ERROR}Error:${NOCOLOR} $M"
@@ -131,9 +130,8 @@ if [ -n "$setup" ]; then
 fi
 
 if [ -z "$repo" ]; then
-  error "--repo is required"
   usage
-  exit 1
+  error "--repo is required"
 fi
 
 #

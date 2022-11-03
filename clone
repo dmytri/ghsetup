@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#
+
 # CLONE GITHUB PROJECTS (CLASSIC) CARDS
 #
 # Dmytri Kleiner <dk@trick.ca>
@@ -8,13 +8,24 @@
 # derived from https://blog.termian.dev/posts/project-cards-copy-github/
 #
 
+
+#
+# CONFIGURATION
+#
+
+
+ERROR='\033[1;31m'
+DEBUG='\033[1;33m'
+NOCOLOR='\033[0m'
+
+SOURCE_PROJECT_ID=14544235
+TARGET_ORG="Garden-Delivery"
+
+BASHER_ROOT="${HOME}/.basher"
+
 #
 # FUNCTIONS
 #
-
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
-NOCOLOR='\033[0m'
 
 usage () {
   echo
@@ -53,7 +64,7 @@ debug () {
         read M 
     fi
 
-    >&1 echo -e "${YELLOW}Debug:${NOCOLOR} $M"
+    >&1 echo -e "${DEBUG}Debug:${NOCOLOR} $M"
   fi
 }
 
@@ -65,35 +76,30 @@ error () {
       read M 
   fi
 
-  >&2 echo -e "${RED}Error:${NOCOLOR} $M"
+  >&2 echo -e "${ERROR}Error:${NOCOLOR} $M"
   exit 1
 }
 
 clean () {
-  local packages
-  mapfile -t packages < <($BASHERPM list)
-
-  log packages to uninstall: ${#packages[@]}
-  for p in "${packages[@]}"; do
-    $BASHERPM uninstall $p
-    debug uninstall $p
-  done
+  debug uninstall basher packages
+  $BASHERPM uninstall dmytri/simple_opts.sh
+  $BASHERPM uninstall dmytri/jp
 }
 
 #
 # SETUP
 #
 
-BASHER_ROOT="$PWD/basher"
 BASHER_PREFIX="$BASHER_ROOT/cellar"
 BASHER_PACKAGES_PATH="$BASHER_PREFIX/packages"
-BASHERPM="$PWD/basher/bin/basher"
+BASHERPM="$BASHER_ROOT/bin/basher"
 
 if ! type $BASHERPM &>/dev/null; then
   git clone --depth=1 https://github.com/basherpm/basher.git $BASHER_ROOT
 fi
 
-eval "$($BASHERPM init - bash)"
+BASHER_INIT="${BASHERPM} init - bash"
+eval "$($BASHER_INIT)"
 
 $BASHERPM install dmytri/simple_opts.sh &>/dev/null
 source $BASHER_PACKAGES_PATH/dmytri/simple_opts.sh/lib/simple_opts.sh
@@ -106,6 +112,7 @@ opt --debug -d
 opt --help -h
 opt_parse $@
 
+debug "${BASHER_INIT}"
 $BASHERPM install dmytri/jp 2>&1 | debug
 
 if [ -n "$help" ]; then
@@ -149,9 +156,7 @@ debug "Github Token: $GITHUB_TOKEN"
 # CLONE
 #
 
-SOURCE_PROJECT_ID=14544235
-
-TARGET_REPO=Garden-Delivery/"${repo}"
+TARGET_REPO="${TARGET_ORG}/${repo}"
 TARGET_PROJECT_ID=$($GH api \
   -H "Accept: application/vnd.github+json" \
   /repos/"${TARGET_REPO}"/projects 2>/dev/null \

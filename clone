@@ -13,15 +13,15 @@
 # CONFIGURATION
 #
 
-
-ERROR='\033[1;31m'
-DEBUG='\033[1;33m'
-NOCOLOR='\033[0m'
-
 SOURCE_PROJECT_ID=14544235
 TARGET_ORG="Garden-Delivery"
 
 BASHER_ROOT="${HOME}/.basher"
+
+ERROR='\033[1;31m'
+DEBUG='\033[1;33m'
+PROMPT='\033[1;32m'
+NOCOLOR='\033[0m'
 
 #
 # FUNCTIONS
@@ -157,10 +157,36 @@ debug "Github Token: $GITHUB_TOKEN"
 #
 
 TARGET_REPO="${TARGET_ORG}/${repo}"
-TARGET_PROJECT_ID=$($GH api \
+
+targetRepoProjects=$($GH api \
   -H "Accept: application/vnd.github+json" \
-  /repos/"${TARGET_REPO}"/projects 2>/dev/null \
-  | jp .h '"id"' .keyval 2>/dev/null )
+  /repos/${TARGET_REPO}/projects)
+
+debug projects api response $targetRepoProjects
+
+mapfile -t targetRepoProjectNames < \
+  <(jp .map .do '"name"' .keyval .done <<< $targetRepoProjects)
+
+mapfile -t targetRepoProjectIds < \
+  <(jp .map .do '"id"' .keyval .done <<< $targetRepoProjects)
+
+targetRepoProjectCount=${#targetRepoProjectNames[@]}
+debug project count $targetRepoProjectCount
+
+if ((targetRepoProjectCount > 0)); then
+  debug project names ${targetRepoProjectNames[*]}
+  PS3="Select a project: "
+  select project in "${targetRepoProjectNames[@]}"; do
+    TARGET_PROJECT_ID=${targetRepoProjectIds[(($REPLY-1))]}
+    if ! ((REPLY > targetRepoProjectCount)); then
+      break
+    fi
+  done
+else
+  TARGET_PROJECT_ID=$(jp .h '"id"' .keyval 2>/dev/null <<< $targetRepoProjects)
+fi
+
+debug Target Project Id: $TARGET_PROJECT_ID
 
 if [ -z "$TARGET_PROJECT_ID" ]; then
   error ${TARGET_REPO} must exist and have project columns copied into it

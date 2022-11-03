@@ -165,12 +165,10 @@ targetRepoProjects=$($GH api \
 
 debug projects api response $targetRepoProjects
 
-# vim: re=0
-mapfile -t targetRepoProjectNames < \
-  <(jp .map .do '"name"' .keyval .done <<< $targetRepoProjects)
+targetRepoProjectNames=()
+while IFS='' read -r line; do targetRepoProjectNames+=("$line"); done < <(jp .map .do '"name"' .keyval .done <<< $targetRepoProjects)
 
-mapfile -t targetRepoProjectIds < \
-  <(jp .map .do '"id"' .keyval .done <<< $targetRepoProjects)
+targetRepoProjectIds=( $(jp .map .do '"id"' .keyval .done <<< $targetRepoProjects) )
 
 targetRepoProjectCount=${#targetRepoProjectNames[@]}
 debug project count $targetRepoProjectCount
@@ -195,19 +193,19 @@ if [ -z "$TARGET_PROJECT_ID" ]; then
   exit 1
 fi
 
-mapfile -t targetColumnIds <  <($GH api \
+targetColumnIds=( $($GH api \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/projects/${TARGET_PROJECT_ID}/columns \
   | jp [] .swap .map .cons \
-  | jp .map .do '"id"' .keyval .done)
+  | jp .map .do '"id"' .keyval .done) )
 
 debug "Target project column ids: ${targetColumnIds[*]}"
 
-mapfile -t sourceColumnIds < <($GH api \
+sourceColumnIds=( $($GH api \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/projects/${SOURCE_PROJECT_ID}/columns \
   | jp [] .swap .map .cons \
-  | jp .map .do '"id"' .keyval .done)
+  | jp .map .do '"id"' .keyval .done) )
 
 debug "Source project column ids: ${sourceColumnIds[*]}"
   
